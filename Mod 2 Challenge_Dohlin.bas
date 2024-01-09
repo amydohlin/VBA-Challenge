@@ -43,7 +43,7 @@ For Each ws In Worksheets
         Dim i As Long
         Dim j As Integer
         Dim Summary As Integer
-        Summary = 2
+        Summary = 1
         
         Dim LastRow As Long
         LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
@@ -55,7 +55,7 @@ For Each ws In Worksheets
         TickerRow = TickerRow + 1
         Ticker = ws.Cells(i, 1).Value
         ws.Cells(TickerRow, 9).Value = Ticker
-        
+        Summary = Summary + 1
         ws.Range("I" & Summary).Value = Ticker
         
         'total volume for each ticker
@@ -68,19 +68,39 @@ For Each ws In Worksheets
         openp = ws.Cells(i, 3).Value
         Tick_Change = closep - openp
         ws.Range("J" & Summary).Value = Tick_Change
-            'ISSUE GETTING YEARLY CHANGE TO PRINT FOR FIRST TICKER IN EACH SHEET
-            'TRIED closep = ws.Cells(i+1, 6).Value AND openp = ws.Cells(i+1, 3).Value, DID NOT WORK
-
+            
             ElseIf openp <> 0 Then
             Percent_Change = (Tick_Change / openp) * 100
             ws.Range("K" & Summary).Value = Percent_Change
-            'DON'T UNDERSTAND THIS PART
+            
+            
+            'print % change as a percentage. from stack overflow.
+            ws.Range("K" & Summary).NumberFormat = "General\%"
 
     Else
     
         Total_Vol = Total_Vol + ws.Cells(i, 7).Value
         
+         'color conditional formatting for yearly change. used checkerboard activity as code ref.
+        If ws.Cells(i, 10).Value > 0 Then
+        ws.Cells(i, 10).Interior.ColorIndex = 4
+        
+            ElseIf ws.Cells(i, 10).Value < 0 Then
+            ws.Cells(i, 10).Interior.ColorIndex = 3
+        
         End If
+        
+    End If
+        
+        'from Stacy Krier
+        If ws.Cells(i, 11).Value = Application.WorksheetFunction.Max(ws.Range("K2:K" & Summary)) Then
+                ws.Cells(2, 16).Value = ws.Cells(i, 9).Value
+                ws.Cells(2, 17).Value = ws.Cells(i, 11).Value
+                ws.Cells(2, 17).NumberFormat = "0.00%"
+                
+                End If
+        
+       
         
     Next i
     
